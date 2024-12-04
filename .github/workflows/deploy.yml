@@ -25,21 +25,22 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Passo 4: Configurar Cosmos DB (com a chave do GitHub Secrets)
+      # Passo 4: Testar a conexão com o Cosmos DB usando a chave de acesso
       - name: Test Cosmos DB Connection
         run: |
-          node -e "
           const { CosmosClient } = require('@azure/cosmos');
-          const key = process.env.CHAVE_AZURE;
-          
-          if (!key) {
-            console.error('A chave de acesso do Cosmos DB não foi fornecida.');
-            process.exit(1);
-          }
-
-          // Use um endpoint genérico se necessário (exemplo: 'https://<sua-conta>.documents.azure.com:443/')
-          const endpoint = 'https://<sua-conta>.documents.azure.com:443/';
-          const client = new CosmosClient({ endpoint, key });
+          const key = process.env.CHAVE_AZURE;  # Segredo do GitHub Actions
+          const client = new CosmosClient({ key });
 
           async function testConnection() {
- 
+            try {
+              const { database } = await client.databases.readAll().fetchAll();
+              console.log('Conexão bem-sucedida ao Cosmos DB!');
+              console.log(database);
+            } catch (err) {
+              console.error('Erro ao conectar ao Cosmos DB:', err.message);
+              process.exit(1);  # Garante que a execução falhe em caso de erro
+            }
+          }
+
+          testConnection();
