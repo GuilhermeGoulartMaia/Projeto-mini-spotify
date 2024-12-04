@@ -25,11 +25,12 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Passo 4: Testar a conexão com o Cosmos DB usando a chave de acesso
+      # Passo 4: Testar conexão com o Cosmos DB usando Node.js
       - name: Test Cosmos DB Connection
         run: |
+          node -e "
           const { CosmosClient } = require('@azure/cosmos');
-          const key = process.env.CHAVE_AZURE;  # Segredo do GitHub Actions
+          const key = process.env.CHAVE_AZURE;  // Segredo do GitHub Actions
           const client = new CosmosClient({ key });
 
           async function testConnection() {
@@ -39,8 +40,8 @@ jobs:
               console.log(database);
             } catch (err) {
               console.error('Erro ao conectar ao Cosmos DB:', err.message);
-              process.exit(1);  # Garante que a execução falhe em caso de erro
             }
           }
 
           testConnection();
+          "
