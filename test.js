@@ -1,16 +1,20 @@
-const { CosmosClient } = require('@azure/cosmos');
+require('dotenv').config(); // Carrega as variáveis de ambiente do arquivo .env
+const { MongoClient } = require('mongodb'); // Importa a biblioteca MongoDB
 
-const client = new CosmosClient({
-  endpoint: 'https://<SEU-COSMOS-DB-ENDPOINT>.documents.azure.com:443/',
-  key: '<SUA-COSMOS-DB-KEY>',
-});
+// Lê o URI completo do arquivo .env
+const mongoUri = process.env.COSMOS_DB_URI;
 
 async function testConnection() {
+  const client = new MongoClient(mongoUri); // Inicializa o cliente com o URI completo
   try {
-    const { database } = await client.databases.createIfNotExists({ id: 'TestDatabase' });
-    console.log('Successfully connected and created database:', database.id);
+    console.log('Tentando conectar ao Cosmos DB com API MongoDB...');
+    
+    await client.connect(); // Testa a conexão
+    console.log('Conexão bem-sucedida!');
   } catch (error) {
-    console.error('Connection failed:', error);
+    console.error('Falha na conexão:', error.message);
+  } finally {
+    await client.close(); // Fecha a conexão
   }
 }
 

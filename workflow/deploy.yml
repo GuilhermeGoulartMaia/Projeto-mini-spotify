@@ -1,0 +1,55 @@
+name: Test and Deploy Mini Spotify
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Passo 1: Fazer checkout do código
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Passo 2: Configurar Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'  # Versão do Node.js
+          cache: 'npm'        # Cache das dependências
+
+      # Passo 3: Instalar dependências
+      - name: Install dependencies
+        run: npm install
+
+      # Passo 4: Configurar Cosmos DB usando identidade gerenciada
+      - name: Test Cosmos DB Connection
+        env:
+          COSMOSDB_ENDPOINT: ${{ secrets.COSMOSDB_ENDPOINT }}
+        run: |
+          npm install @azure/identity @azure/cosmos
+
+          node -e "
+          const { DefaultAzureCredential } = require('@azure/identity');
+          const { CosmosClient } = require('@azure/cosmos');
+
+          // Configuração do Cosmos DB
+          const endpoint = process.env.COSMOSDB_ENDPOINT;
+          const credential = new DefaultAzureCredential();
+          const client = new CosmosClient({ endpoint, credential });
+
+          async function testConnection() {
+            try {
+              const { resources: databases } = await client.databases.readAll().fetchAll();
+              console.log('Conexão bem-sucedida ao Cosmos DB!');
+              console.log('Databases:', databases);
+            } catch (err) {
+              console.error('Erro ao conectar ao Cosmos DB:', err.message);
+            }
+          }
+          
+          testConnection();
+          "
