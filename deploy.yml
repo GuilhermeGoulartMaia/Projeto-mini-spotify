@@ -30,7 +30,6 @@ jobs:
         run: |
           node -e "
           const { CosmosClient } = require('@azure/cosmos');
-          const endpoint = process.env.COSMOSDB_ENDPOINT;
           const key = process.env.CHAVE_AZURE;
           const client = new CosmosClient({ endpoint, key });
 

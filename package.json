@@ -39,9 +39,13 @@
     "test": "mocha --reporter spec --bail --check-leaks test/",
     "test-ci": "nyc --reporter=lcov --reporter=text npm test",
     "test-cov": "nyc --reporter=html --reporter=text npm test",
-    "update-bench": "node scripts/update-benchmark.js"
+    "update-bench": "node scripts/update-benchmark.js",
+    "start": "node index.js"
   },
   "dependencies": {
-    "@azure/cosmos": "^4.2.0"
+    "@azure/cosmos": "^4.2.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.1",
+    "mongoose": "^8.8.3"
   }
 }

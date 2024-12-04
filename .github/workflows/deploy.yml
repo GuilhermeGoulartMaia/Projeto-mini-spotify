@@ -28,7 +28,6 @@ jobs:
       # Passo 4: Testar conexão com o Cosmos DB
       - name: Test Cosmos DB Connection
         env:
-          COSMOSDB_ENDPOINT: ${{ secrets.COSMOSDB_ENDPOINT }}
           CHAVE_AZURE: ${{ secrets.CHAVE_AZURE }}
         run: |
           node -e "
