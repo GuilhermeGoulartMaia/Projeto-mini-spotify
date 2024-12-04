@@ -1,0 +1,45 @@
+name: Test and Deploy Mini Spotify
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Passo 1: Fazer checkout do código
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Passo 2: Configurar Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'  # Versão do Node.js
+          cache: 'npm'        # Cache das dependências
+
+      # Passo 3: Instalar dependências
+      - name: Install dependencies
+        run: npm install
+
+      # Passo 4: Configurar Cosmos DB (com a chave do GitHub Secrets)
+      - name: Test Cosmos DB Connection
+        run: |
+          node -e "
+          const { CosmosClient } = require('@azure/cosmos');
+          const key = process.env.CHAVE_AZURE;
+          
+          if (!key) {
+            console.error('A chave de acesso do Cosmos DB não foi fornecida.');
+            process.exit(1);
+          }
+
+          // Use um endpoint genérico se necessário (exemplo: 'https://<sua-conta>.documents.azure.com:443/')
+          const endpoint = 'https://<sua-conta>.documents.azure.com:443/';
+          const client = new CosmosClient({ endpoint, key });
+
+          async function testConnection() {
+ 
