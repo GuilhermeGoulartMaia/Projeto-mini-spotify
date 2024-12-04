@@ -25,23 +25,36 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Passo 4: Testar conexão com o Cosmos DB usando Node.js
+      # Passo 4: Testar conexão com o Cosmos DB
       - name: Test Cosmos DB Connection
+        env:
+          COSMOSDB_ENDPOINT: ${{ secrets.COSMOSDB_ENDPOINT }}
+          CHAVE_AZURE: ${{ secrets.CHAVE_AZURE }}
         run: |
           node -e "
           const { CosmosClient } = require('@azure/cosmos');
-          const key = process.env.CHAVE_AZURE;  // Segredo do GitHub Actions
-          const client = new CosmosClient({ key });
+
+          // Verifique se as variáveis de ambiente estão definidas
+          if (!process.env.COSMOSDB_ENDPOINT || !process.env.CHAVE_AZURE) {
+            throw new Error('As variáveis de ambiente COSMOSDB_ENDPOINT e CHAVE_AZURE devem estar definidas.');
+          }
+
+          // Cria uma instância do cliente Cosmos DB
+          const client = new CosmosClient({
+            endpoint: process.env.COSMOSDB_ENDPOINT,
+            key: process.env.CHAVE_AZURE
+          });
 
           async function testConnection() {
             try {
-              const { database } = await client.databases.readAll().fetchAll();
+              // Tenta acessar os bancos de dados
+              const { resources: databases } = await client.databases.readAll().fetchAll();
               console.log('Conexão bem-sucedida ao Cosmos DB!');
-              console.log(database);
+              console.log(databases);
             } catch (err) {
               console.error('Erro ao conectar ao Cosmos DB:', err.message);
             }
           }
-
+          
           testConnection();
           "
